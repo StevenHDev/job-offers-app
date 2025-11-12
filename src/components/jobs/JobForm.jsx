@@ -1,5 +1,8 @@
 import { useState } from 'react'
 import { z } from 'zod'
+import Input from '../common/Input'
+import Select from '../common/Select'
+import Button from '../common/Button'
 
 const jobSchema = z.object({
   title: z.string().min(3, 'El título es obligatorio'),
@@ -63,57 +66,49 @@ const JobForm = ({ onSubmit, initialValues = {} }) => {
   return (
     <>
       <form className='space-y-4' onSubmit={handleSubmit}>
-        <input
+        <Input
           name='title'
           value={form.title}
           onChange={handleChange}
           placeholder='Título'
-          className='w-full px-3 py-2 border rounded'
         />
         {errors.title && <p className='text-red-500 text-sm'>{errors.title}</p>}
-        <input
+        <Input
           name='company_info'
           value={form.company_info}
           onChange={handleChange}
           placeholder='Empresa'
-          className='w-full px-3 py-2 border rounded'
         />
         {errors.company_info && (
           <p className='text-red-500 text-sm'>{errors.company_info}</p>
         )}
-        <input
+        <Input
           name='location'
           value={form.location}
           onChange={handleChange}
           placeholder='Ubicación'
-          className='w-full px-3 py-2 border rounded'
         />
         {errors.location && (
           <p className='text-red-500 text-sm'>{errors.location}</p>
         )}
-        <select
+        <Select
           name='employment_type'
           value={form.employment_type}
-          onChange={handleChange}
-          className='w-full px-3 py-2 border rounded'>
+          onChange={handleChange}>
           <option value=''>Tipo de empleo</option>
           <option value='full-time'>Tiempo completo</option>
           <option value='part-time'>Medio tiempo</option>
           <option value='internship'>Prácticas</option>
           <option value='contract'>Contrato</option>
-        </select>
+        </Select>
         {errors.employment_type && (
           <p className='text-red-500 text-sm'>{errors.employment_type}</p>
         )}
-        <select
-          name='status'
-          value={form.status}
-          onChange={handleChange}
-          className='w-full px-3 py-2 border rounded'>
+        <Select name='status' value={form.status} onChange={handleChange}>
           <option value='active'>Activa</option>
           <option value='closed'>Cerrada</option>
           <option value='draft'>Borrador</option>
-        </select>
+        </Select>
         {errors.status && (
           <p className='text-red-500 text-sm'>{errors.status}</p>
         )}
@@ -130,21 +125,21 @@ const JobForm = ({ onSubmit, initialValues = {} }) => {
         <div>
           <label className='block font-semibold'>Responsabilidades</label>
           {form.responsibilities.map((r, i) => (
-            <input
+            <Input
               key={i}
               value={r}
               onChange={(e) =>
                 handleArrayChange('responsibilities', i, e.target.value)
               }
-              className='w-full px-3 py-2 border rounded mb-2'
+              className='mb-2'
             />
           ))}
-          <button
+          <Button
             type='button'
-            onClick={() => handleAddArrayItem('responsibilities')}
-            className='px-2 py-1 bg-gray-200 rounded'>
+            className='bg-gray-200 text-gray-800 hover:bg-gray-300 px-2 py-1'
+            onClick={() => handleAddArrayItem('responsibilities')}>
             Agregar
-          </button>
+          </Button>
           {errors.responsibilities && (
             <p className='text-red-500 text-sm'>{errors.responsibilities}</p>
           )}
@@ -152,21 +147,21 @@ const JobForm = ({ onSubmit, initialValues = {} }) => {
         <div>
           <label className='block font-semibold'>Requisitos</label>
           {form.requirements.map((r, i) => (
-            <input
+            <Input
               key={i}
               value={r}
               onChange={(e) =>
                 handleArrayChange('requirements', i, e.target.value)
               }
-              className='w-full px-3 py-2 border rounded mb-2'
+              className='mb-2'
             />
           ))}
-          <button
+          <Button
             type='button'
-            onClick={() => handleAddArrayItem('requirements')}
-            className='px-2 py-1 bg-gray-200 rounded'>
+            className='bg-gray-200 text-gray-800 hover:bg-gray-300 px-2 py-1'
+            onClick={() => handleAddArrayItem('requirements')}>
             Agregar
-          </button>
+          </Button>
           {errors.requirements && (
             <p className='text-red-500 text-sm'>{errors.requirements}</p>
           )}
@@ -174,28 +169,24 @@ const JobForm = ({ onSubmit, initialValues = {} }) => {
         <div>
           <label className='block font-semibold'>Beneficios</label>
           {form.benefits.map((b, i) => (
-            <input
+            <Input
               key={i}
               value={b}
               onChange={(e) => handleArrayChange('benefits', i, e.target.value)}
-              className='w-full px-3 py-2 border rounded mb-2'
+              className='mb-2'
             />
           ))}
-          <button
+          <Button
             type='button'
-            onClick={() => handleAddArrayItem('benefits')}
-            className='px-2 py-1 bg-gray-200 rounded'>
+            className='bg-gray-200 text-gray-800 hover:bg-gray-300 px-2 py-1'
+            onClick={() => handleAddArrayItem('benefits')}>
             Agregar
-          </button>
+          </Button>
           {errors.benefits && (
             <p className='text-red-500 text-sm'>{errors.benefits}</p>
           )}
         </div>
-        <button
-          type='submit'
-          className='px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600'>
-          Guardar oferta
-        </button>
+        <Button type='submit'>Guardar oferta</Button>
       </form>
       {showPreview && (
         <div className='mt-8 p-6 bg-gray-50 rounded shadow'>

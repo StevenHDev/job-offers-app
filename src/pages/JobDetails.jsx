@@ -16,9 +16,17 @@ const JobDetails = () => {
   }, [id])
 
   if (loading)
-    return <div className='text-center py-10'>Cargando oferta...</div>
+    return (
+      <DashboardLayout>
+        <div className='text-center py-10'>Cargando oferta...</div>
+      </DashboardLayout>
+    )
 
-  return <JobDetail job={job} />
+  return (
+    <DashboardLayout>
+      <JobDetail job={job} />
+    </DashboardLayout>
+  )
 }
 
 export default JobDetails

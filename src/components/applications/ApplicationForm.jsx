@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import toast from 'react-hot-toast'
 import FileUpload from '../components/common/FileUpload'
 import { uploadCV, hasAlreadyApplied } from '../services/applicationService'
+import Button from '../components/common/Button'
 
 const ApplicationForm = ({ jobId, userId, onSubmit }) => {
   const [file, setFile] = useState(null)
@@ -53,12 +54,9 @@ const ApplicationForm = ({ jobId, userId, onSubmit }) => {
         className='w-full px-3 py-2 border rounded'
       />
       {error && <p className='text-red-500 text-sm'>{error}</p>}
-      <button
-        type='submit'
-        className='px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600'
-        disabled={loading}>
+      <Button type='submit' disabled={loading}>
         {loading ? 'Enviando...' : 'Postularme'}
-      </button>
+      </Button>
     </form>
   )
 }

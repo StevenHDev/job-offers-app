@@ -5,6 +5,8 @@ import Dashboard from './pages/Dashboard'
 import Jobs from './pages/Jobs'
 import JobDetails from './pages/JobDetails'
 import CreateJob from './pages/CreateJob'
+import MyApplications from './pages/MyApplications'
+import RecruiterDashboard from './pages/RecruiterDashboard'
 import NotFound from './pages/NotFound'
 
 function App() {
@@ -17,6 +19,8 @@ function App() {
         <Route path='/jobs' element={<Jobs />} />
         <Route path='/jobs/:id' element={<JobDetails />} />
         <Route path='/create-job' element={<CreateJob />} />
+        <Route path='/my-applications' element={<MyApplications />} />
+        <Route path='/reclutadores' element={<RecruiterDashboard />} />
         <Route path='*' element={<NotFound />} />
       </Routes>
     </BrowserRouter>

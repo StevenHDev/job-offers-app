@@ -258,19 +258,23 @@ job-portal/
 
 ### Fase 7: UI/UX
 
-- [ ] Diseñar y aplicar tema de colores
-- [ ] Crear componentes reutilizables
-  - [ ] Button
-  - [ ] Input
-  - [ ] Select
-  - [ ] FileUpload
-  - [ ] Modal
-  - [ ] Card
-- [ ] Implementar diseño responsive
-- [ ] Agregar estados de carga
-- [ ] Implementar manejo de errores
-- [ ] Agregar animaciones sutiles
-- [ ] Optimizar imágenes y recursos
+- [x] Mejorar diseño visual general con TailwindCSS
+- [x] Crear y pulir componentes reutilizables
+  - [x] Button
+  - [x] Input
+  - [x] Select
+  - [x] FileUpload
+  - [x] Modal
+  - [x] Card
+- [ ] Implementar diseño responsive (móvil, tablet, desktop)
+- [ ] Agregar feedback visual (loaders/spinners en formularios y listas)
+- [ ] Animaciones de transición entre páginas y componentes
+- [ ] Mensajes de error y éxito claros en formularios
+- [ ] Mejorar accesibilidad (contraste, etiquetas, navegación)
+- [ ] Agregar iconografía y microinteracciones
+- [ ] Optimizar vistas de Dashboard y Listados
+- [ ] Revisar y pulir componentes reutilizables
+- [ ] Pruebas de usabilidad y ajustes finales
 
 ### Fase 8: Funcionalidades Avanzadas (Opcional)
 
