@@ -10,8 +10,21 @@ export const uploadCV = async (file, userId) => {
       contentType: 'application/pdf'
     })
   if (error) return { error }
-  const url = supabase.storage.from('cvs').getPublicUrl(fileName).data.publicUrl
-  return { url }
+
+  // Generar URL firmada válida por 7 días (604800 segundos)
+  const { data: signedUrlData, error: signedError } = await supabase.storage
+    .from('cvs')
+    .createSignedUrl(fileName, 604800) // 7 días
+
+  if (signedError) {
+    console.error('Error generando URL firmada:', signedError)
+    // Fallback a URL pública si falla
+    const url = supabase.storage.from('cvs').getPublicUrl(fileName)
+      .data.publicUrl
+    return { url }
+  }
+
+  return { url: signedUrlData.signedUrl }
 }
 
 export const createApplication = async (applicationData) => {
