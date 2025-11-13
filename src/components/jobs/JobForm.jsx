@@ -14,7 +14,7 @@ const jobSchema = z.object({
   requirements: z.array(z.string()).min(1)
 })
 
-const JobForm = ({ onSubmit, initialValues = {} }) => {
+const JobForm = ({ onSubmit, initialValues = {}, isEditing = false }) => {
   const [form, setForm] = useState({
     title: initialValues.title || '',
     description: initialValues.description || '',
@@ -31,6 +31,17 @@ const JobForm = ({ onSubmit, initialValues = {} }) => {
       setAllRequirements(data || [])
     })
   }, [])
+
+  // Actualizar el form cuando cambien los initialValues (para edición)
+  useEffect(() => {
+    if (initialValues && Object.keys(initialValues).length > 0) {
+      setForm({
+        title: initialValues.title || '',
+        description: initialValues.description || '',
+        requirements: initialValues.requirements || []
+      })
+    }
+  }, [initialValues])
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value })
@@ -110,21 +121,27 @@ const JobForm = ({ onSubmit, initialValues = {} }) => {
     }
     setErrors({})
     onSubmit(form)
-    resetForm() // Limpiar el formulario después de enviar
+
+    // Solo resetear si NO es edición
+    if (!isEditing) {
+      resetForm()
+    }
   }
 
   return (
     <div className='max-w-3xl mx-auto'>
       <form className='space-y-6' onSubmit={handleSubmit}>
-        {/* Header del formulario */}
-        <div className='bg-blue-50 border-l-4 border-blue-600 px-6 py-4 rounded-lg'>
-          <h3 className='text-xl font-bold text-gray-900 mb-1'>
-            📝 Crear Nueva Oferta
-          </h3>
-          <p className='text-gray-600 text-sm'>
-            Completa los detalles de la oferta de trabajo
-          </p>
-        </div>
+        {/* Header del formulario - solo en modo creación */}
+        {!isEditing && (
+          <div className='bg-blue-50 border-l-4 border-blue-600 px-6 py-4 rounded-lg'>
+            <h3 className='text-xl font-bold text-gray-900 mb-1'>
+              📝 Crear Nueva Oferta
+            </h3>
+            <p className='text-gray-600 text-sm'>
+              Completa los detalles de la oferta de trabajo
+            </p>
+          </div>
+        )}
 
         {/* Título */}
         <div>
@@ -335,7 +352,7 @@ const JobForm = ({ onSubmit, initialValues = {} }) => {
           <Button
             type='submit'
             className='px-8 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors shadow-md hover:shadow-lg'>
-            ✨ Crear Oferta
+            {isEditing ? '💾 Actualizar Oferta' : '✨ Crear Oferta'}
           </Button>
         </div>
       </form>

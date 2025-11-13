@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { getUserApplications } from '../services/applicationService'
+import { getAllApplications } from '../services/applicationService'
 import DashboardLayout from '../components/common/DashboardLayout'
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
@@ -7,8 +7,7 @@ import Modal from '../components/common/Modal'
 
 const MyApplications = () => {
   const navigate = useNavigate()
-  const { user, logout } = useAuthStore()
-  const userId = user?.id
+  const { logout } = useAuthStore()
 
   const handleLogout = () => {
     logout()
@@ -19,20 +18,14 @@ const MyApplications = () => {
   const [selectedCoverLetter, setSelectedCoverLetter] = useState(null)
 
   useEffect(() => {
-    console.log('MyApplications - userId:', userId)
-    console.log('MyApplications - user completo:', user)
-    if (userId) {
-      getUserApplications(userId).then(({ data, error }) => {
-        console.log('MyApplications - Aplicaciones recibidas:', data)
-        console.log('MyApplications - Error:', error)
-        setApplications(data || [])
-        setLoading(false)
-      })
-    } else {
-      console.log('MyApplications - No hay userId, no se cargan aplicaciones')
+    console.log('MyApplications - Cargando todas las aplicaciones')
+    getAllApplications().then(({ data, error }) => {
+      console.log('MyApplications - Aplicaciones recibidas:', data)
+      console.log('MyApplications - Error:', error)
+      setApplications(data || [])
       setLoading(false)
-    }
-  }, [userId])
+    })
+  }, [])
 
   const getStatusBadge = (status) => {
     const statusConfig = {
@@ -83,7 +76,7 @@ const MyApplications = () => {
       <DashboardLayout onLogout={handleLogout}>
         <div className='max-w-6xl w-full mx-auto px-4 py-10'>
           <h2 className='text-3xl font-bold mb-8 text-gray-900'>
-            Mis Postulaciones
+            📋 Todas las Postulaciones
           </h2>
           <div className='text-center py-12 bg-white rounded-lg border-2 border-dashed border-gray-300'>
             <div className='inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4'>
@@ -101,10 +94,10 @@ const MyApplications = () => {
               </svg>
             </div>
             <h3 className='text-lg font-medium text-gray-900 mb-1'>
-              No tienes postulaciones
+              No hay postulaciones
             </h3>
             <p className='text-gray-500 mb-6'>
-              Aún no te has postulado a ninguna oferta de trabajo.
+              Aún no hay postulaciones registradas en el sistema.
             </p>
             <button
               onClick={() => navigate('/jobs')}
@@ -134,10 +127,10 @@ const MyApplications = () => {
       <div className='max-w-6xl w-full mx-auto px-4 py-10'>
         <div className='mb-8'>
           <h2 className='text-3xl font-bold text-gray-900 mb-2'>
-            Mis Postulaciones
+            📋 Todas las Postulaciones
           </h2>
           <p className='text-gray-600'>
-            Gestiona y da seguimiento a tus aplicaciones
+            Visualiza todas las aplicaciones de trabajo del sistema
           </p>
         </div>
 
@@ -151,9 +144,14 @@ const MyApplications = () => {
                 <h3 className='font-semibold text-lg text-white mb-1'>
                   {app.jobs?.title || 'Título no disponible'}
                 </h3>
-                {app.profiles?.full_name && (
+                {(app.profiles?.full_name || app.candidate_name) && (
                   <p className='text-sm text-blue-50'>
-                    Candidato: {app.profiles.full_name}
+                    Candidato: {app.profiles?.full_name || app.candidate_name}
+                  </p>
+                )}
+                {(app.profiles?.email || app.candidate_email) && (
+                  <p className='text-xs text-blue-100'>
+                    📧 {app.profiles?.email || app.candidate_email}
                   </p>
                 )}
               </div>

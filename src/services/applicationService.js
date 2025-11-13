@@ -107,6 +107,41 @@ export const getUserApplications = async (userId) => {
   return { data, error }
 }
 
+export const getAllApplications = async () => {
+  console.log('getAllApplications - Obteniendo todas las aplicaciones')
+
+  const { data, error } = await supabase
+    .from('applications')
+    .select(
+      `
+      id,
+      job_id,
+      candidate_id,
+      candidate_name,
+      candidate_email,
+      cv_url,
+      cover_letter,
+      status,
+      applied_at,
+      jobs:job_id (
+        id,
+        title,
+        description,
+        status
+      ),
+      profiles:candidate_id (
+        full_name,
+        email
+      )
+    `
+    )
+    .order('applied_at', { ascending: false })
+
+  console.log('getAllApplications - Resultado:', { data, error })
+
+  return { data, error }
+}
+
 export const hasAlreadyApplied = async (jobId, candidateId) => {
   const { data, error } = await supabase
     .from('applications')

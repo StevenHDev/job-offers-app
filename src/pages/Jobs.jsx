@@ -62,18 +62,38 @@ const Jobs = () => {
     fetchJobs()
   }, [filters, page, pageSize, searchTerm])
 
-  const handleEdit = (job) => {
-    setEditingJob(job)
+  const handleEdit = async (job) => {
+    // Obtener el job completo con sus requerimientos desde la DB
+    const { getJobById } = await import('../services/jobService')
+    const { data, error } = await getJobById(job.id)
+    if (error) {
+      console.error('Error al cargar el job:', error)
+      return
+    }
+    setEditingJob(data)
     setShowEditModal(true)
   }
 
   const handleDelete = async (id) => {
-    await deleteJob(id)
+    if (!window.confirm('¿Estás seguro de eliminar esta oferta?')) {
+      return
+    }
+    const { error } = await deleteJob(id)
+    if (error) {
+      console.error('Error al eliminar:', error)
+      alert('Error al eliminar la oferta')
+      return
+    }
     fetchJobs()
   }
 
   const handleUpdate = async (updated) => {
-    await updateJob(editingJob.id, updated)
+    const { error } = await updateJob(editingJob.id, updated)
+    if (error) {
+      console.error('Error al actualizar:', error)
+      alert('Error al actualizar la oferta')
+      return
+    }
     setShowEditModal(false)
     setEditingJob(null)
     fetchJobs()
@@ -214,14 +234,35 @@ const Jobs = () => {
             </table>
           </div>
         </div>
+
+        {/* Modal de edición */}
         <Modal open={showEditModal} onClose={() => setShowEditModal(false)}>
-          <h3 className='text-xl font-bold mb-4'>Editar Oferta</h3>
-          <JobForm initialValues={editingJob} onSubmit={handleUpdate} />
-          <Button
-            className='mt-4 bg-gray-300 text-gray-800 hover:bg-gray-400'
-            onClick={() => setShowEditModal(false)}>
-            Cancelar
-          </Button>
+          <div className='bg-blue-50 border-l-4 border-blue-600 px-6 py-4 rounded-lg -mt-6 -mx-6 mb-6'>
+            <h3 className='text-xl font-bold text-gray-900 mb-1'>
+              ✏️ Editar Oferta
+            </h3>
+            <p className='text-sm text-gray-600'>
+              Actualiza los detalles de la oferta de trabajo
+            </p>
+          </div>
+
+          <JobForm
+            initialValues={editingJob}
+            onSubmit={handleUpdate}
+            isEditing={true}
+          />
+
+          <div className='mt-6 pt-4 border-t border-gray-200 flex justify-end gap-3'>
+            <Button
+              type='button'
+              className='px-6 py-2 bg-gray-200 text-gray-700 hover:bg-gray-300 rounded-lg transition-colors'
+              onClick={() => {
+                setShowEditModal(false)
+                setEditingJob(null)
+              }}>
+              Cancelar
+            </Button>
+          </div>
         </Modal>
 
         {/* Pagination */}
