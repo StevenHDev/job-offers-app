@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import toast from 'react-hot-toast'
 import FileUpload from '../common/FileUpload'
 import { uploadCV } from '../../services/applicationService'
+import { sendToN8nWebhook } from '../../services/webhookService'
 import Button from '../common/Button'
 import Input from '../common/Input'
 
@@ -74,6 +75,28 @@ const ApplicationForm = ({ jobId, onSubmit }) => {
       setLoading(false)
       return
     }
+
+    // ✅ ENVIAR A N8N WEBHOOK (después de crear exitosamente)
+    const webhookData = {
+      application_id: result?.data?.[0]?.id || null,
+      job_id: jobId,
+      candidate_name: candidateName.trim() || 'Sin nombre',
+      candidate_email: candidateEmail.trim().toLowerCase() || 'Sin email',
+      cv_url: url,
+      cv_file_url: url, // URL pública del PDF para que n8n lo descargue
+      timestamp: new Date().toISOString(),
+      status: 'pending'
+    }
+
+    // Enviar al webhook (no bloqueante - si falla, la aplicación ya se creó)
+    sendToN8nWebhook(webhookData).then(({ error: webhookError }) => {
+      if (webhookError) {
+        console.warn('⚠️ No se pudo enviar al webhook de n8n:', webhookError)
+        // No mostramos error al usuario porque la aplicación ya se creó exitosamente
+      } else {
+        console.log('✅ Webhook de n8n notificado exitosamente')
+      }
+    })
 
     toast.success('¡Postulación enviada exitosamente!')
 
