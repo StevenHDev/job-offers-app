@@ -7,8 +7,9 @@ import DashboardLayout from '../components/common/DashboardLayout'
 const CreateJob = () => {
   const navigate = useNavigate()
   const handleSubmit = async (form) => {
+    console.log('Creating job with data:', form)
     await createJob(form)
-    navigate('/jobs')
+    // navigate('/jobs')
   }
   return (
     <DashboardLayout>

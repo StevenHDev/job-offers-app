@@ -1,8 +1,19 @@
 import React from 'react'
 
-const Card = ({ children, className = '' }) => {
+const Card = ({ children, className = '', hover = false }) => {
   return (
-    <div className={`bg-white p-4 rounded shadow ${className}`}>{children}</div>
+    <div
+      className={`
+        bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden
+        ${
+          hover
+            ? 'hover:shadow-xl hover:scale-[1.02] transition-all duration-300'
+            : ''
+        }
+        ${className}
+      `}>
+      {children}
+    </div>
   )
 }
 

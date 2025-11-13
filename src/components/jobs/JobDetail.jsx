@@ -24,7 +24,7 @@ const JobDetail = ({ job }) => {
       <div className='mb-4'>
         <strong>Requisitos:</strong>
         <ul className='list-disc ml-6'>
-          {job.requirements?.map((r, i) => (
+          {(job.requirement_names || job.requirements)?.map((r, i) => (
             <li key={i}>{r}</li>
           ))}
         </ul>
