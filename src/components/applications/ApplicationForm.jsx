@@ -1,38 +1,16 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import toast from 'react-hot-toast'
 import FileUpload from '../common/FileUpload'
-import { uploadCV, hasAlreadyApplied } from '../../services/applicationService'
+import { uploadCV } from '../../services/applicationService'
 import Button from '../common/Button'
 import Input from '../common/Input'
-import Select from '../common/Select'
-import { supabase } from '../../lib/supabaseClient'
 
-const ApplicationForm = ({ jobId, userId, onSubmit, isAdmin = false }) => {
+const ApplicationForm = ({ jobId, onSubmit }) => {
   const [file, setFile] = useState(null)
-  const [coverLetter, setCoverLetter] = useState('')
+  const [candidateName, setCandidateName] = useState('')
+  const [candidateEmail, setCandidateEmail] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [candidates, setCandidates] = useState([])
-  const [selectedCandidateId, setSelectedCandidateId] = useState('')
-  const [candidateEmail, setCandidateEmail] = useState('')
-  const [candidateName, setCandidateName] = useState('')
-
-  useEffect(() => {
-    if (isAdmin) {
-      loadCandidates()
-    }
-  }, [isAdmin])
-
-  const loadCandidates = async () => {
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('id, email, full_name')
-      .order('email')
-
-    if (!error && data) {
-      setCandidates(data)
-    }
-  }
 
   const handleFileSelect = (selectedFile) => {
     setFile(selectedFile)
@@ -42,30 +20,29 @@ const ApplicationForm = ({ jobId, userId, onSubmit, isAdmin = false }) => {
     e.preventDefault()
     setError('')
 
+    // Validar solo el CV (nombre y email son opcionales)
     if (!file) {
-      setError('Debes subir el CV en PDF.')
+      setError('Debes subir tu CV en PDF.')
       return
     }
 
-    const candidateId = isAdmin ? selectedCandidateId : userId
-
-    if (isAdmin && !selectedCandidateId) {
-      setError('Debes seleccionar un candidato.')
-      return
+    // Validar formato de email solo si se proporciona
+    if (candidateEmail.trim()) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+      if (!emailRegex.test(candidateEmail)) {
+        setError('El email no es válido.')
+        return
+      }
     }
 
     setLoading(true)
 
-    // Verificar si ya existe postulación
-    const { exists } = await hasAlreadyApplied(jobId, candidateId)
-    if (exists) {
-      setError('Este candidato ya ha postulado a esta oferta.')
-      setLoading(false)
-      return
-    }
+    // Subir CV (usar timestamp si no hay email)
+    const uniqueId = candidateEmail.trim()
+      ? candidateEmail.replace(/[^a-zA-Z0-9]/g, '_')
+      : `candidate_${Date.now()}`
+    const { url, error: uploadError } = await uploadCV(file, uniqueId)
 
-    // Subir CV
-    const { url, error: uploadError } = await uploadCV(file, candidateId)
     if (uploadError) {
       setError(
         `Error al subir el CV: ${uploadError.message || 'Error desconocido'}`
@@ -77,9 +54,11 @@ const ApplicationForm = ({ jobId, userId, onSubmit, isAdmin = false }) => {
     // Crear postulación
     const applicationData = {
       job_id: jobId,
-      candidate_id: candidateId,
+      candidate_id: null, // Sin relación a cuenta
+      candidate_name: candidateName.trim(),
+      candidate_email: candidateEmail.trim().toLowerCase(),
       cv_url: url,
-      cover_letter: coverLetter
+      cover_letter: null
     }
 
     // Esperar a que se cree la aplicación
@@ -100,81 +79,39 @@ const ApplicationForm = ({ jobId, userId, onSubmit, isAdmin = false }) => {
 
     // Limpiar formulario
     setFile(null)
-    setCoverLetter('')
-    setSelectedCandidateId('')
-    setCandidateEmail('')
     setCandidateName('')
+    setCandidateEmail('')
     setLoading(false)
   }
 
   return (
     <form className='space-y-6' onSubmit={handleSubmit}>
-      {isAdmin && (
-        <div className='bg-blue-50 border-l-4 border-blue-500 p-4 rounded'>
-          <h3 className='font-semibold text-blue-900 mb-3'>
-            Información del Candidato
-          </h3>
+      <div className='bg-blue-50 border-l-4 border-blue-500 p-4 rounded'>
+        <h3 className='font-semibold text-blue-900 mb-2'>
+          Información del Candidato
+        </h3>
+        <p className='text-sm text-blue-700'>
+          Completa tus datos y sube tu CV para postularte
+        </p>
+      </div>
 
-          <div className='space-y-4'>
-            <Select
-              label='Seleccionar candidato existente'
-              value={selectedCandidateId}
-              onChange={(e) => {
-                setSelectedCandidateId(e.target.value)
-                const selected = candidates.find((c) => c.id === e.target.value)
-                if (selected) {
-                  setCandidateEmail(selected.email)
-                  setCandidateName(selected.full_name || '')
-                }
-              }}>
-              <option value=''>-- Seleccionar candidato --</option>
-              {candidates.map((candidate) => (
-                <option key={candidate.id} value={candidate.id}>
-                  {candidate.email}{' '}
-                  {candidate.full_name ? `- ${candidate.full_name}` : ''}
-                </option>
-              ))}
-            </Select>
-
-            {selectedCandidateId && (
-              <div className='grid grid-cols-2 gap-4'>
-                <Input
-                  label='Email'
-                  type='email'
-                  value={candidateEmail}
-                  disabled
-                  className='bg-gray-100'
-                />
-                <Input
-                  label='Nombre'
-                  type='text'
-                  value={candidateName}
-                  disabled
-                  className='bg-gray-100'
-                />
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      <FileUpload
-        onFileSelect={handleFileSelect}
-        label={isAdmin ? 'CV del Candidato (PDF)' : 'Subir CV (PDF)'}
+      <Input
+        label='Nombre completo (opcional)'
+        type='text'
+        value={candidateName}
+        onChange={(e) => setCandidateName(e.target.value)}
+        placeholder='Juan Pérez'
       />
 
-      <div>
-        <label className='block text-sm font-medium text-gray-700 mb-2'>
-          Carta de presentación (opcional)
-        </label>
-        <textarea
-          value={coverLetter}
-          onChange={(e) => setCoverLetter(e.target.value)}
-          placeholder='Escribe una carta de presentación...'
-          rows={5}
-          className='w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none'
-        />
-      </div>
+      <Input
+        label='Email (opcional)'
+        type='email'
+        value={candidateEmail}
+        onChange={(e) => setCandidateEmail(e.target.value)}
+        placeholder='tu@email.com'
+      />
+
+      <FileUpload onFileSelect={handleFileSelect} label='Subir CV (PDF)' />
 
       {error && (
         <div className='bg-red-50 border-l-4 border-red-500 p-4 rounded'>
@@ -194,11 +131,7 @@ const ApplicationForm = ({ jobId, userId, onSubmit, isAdmin = false }) => {
         </div>
       )}
 
-      <Button
-        type='submit'
-        variant={isAdmin ? 'success' : 'primary'}
-        disabled={loading}
-        className='w-full'>
+      <Button type='submit' disabled={loading} className='w-full'>
         {loading ? (
           <div className='flex items-center justify-center'>
             <svg
@@ -220,8 +153,6 @@ const ApplicationForm = ({ jobId, userId, onSubmit, isAdmin = false }) => {
             </svg>
             Enviando postulación...
           </div>
-        ) : isAdmin ? (
-          '📤 Crear Postulación'
         ) : (
           '🚀 Postularme'
         )}

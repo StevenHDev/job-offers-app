@@ -198,14 +198,20 @@ const ApplicationListManage = ({ jobId, onStatusChange }) => {
                 <div className='flex-1'>
                   <div className='flex items-center gap-3 mb-2'>
                     <div className='w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-semibold'>
-                      {app.profiles?.full_name?.charAt(0).toUpperCase() || 'U'}
+                      {app.profiles?.full_name?.charAt(0).toUpperCase() ||
+                        app.candidate_name?.charAt(0).toUpperCase() ||
+                        'U'}
                     </div>
                     <div>
                       <h3 className='font-semibold text-gray-900'>
-                        {app.profiles?.full_name || 'Sin nombre'}
+                        {app.profiles?.full_name ||
+                          app.candidate_name ||
+                          'Sin nombre'}
                       </h3>
                       <p className='text-sm text-gray-500'>
-                        {app.profiles?.email || 'Sin email'}
+                        {app.profiles?.email ||
+                          app.candidate_email ||
+                          'Sin email'}
                       </p>
                     </div>
                   </div>

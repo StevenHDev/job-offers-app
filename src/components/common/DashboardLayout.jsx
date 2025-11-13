@@ -1,13 +1,11 @@
 import { useNavigate, useLocation } from 'react-router-dom'
 import Button from './Button'
+import { useAuthStore } from '../../store/authStore'
 
-const DashboardLayout = ({
-  children,
-  user = { name: 'Brooklyn Simmons', email: 'brook.simmons@example.com' },
-  onLogout
-}) => {
+const DashboardLayout = ({ children, onLogout }) => {
   const navigate = useNavigate()
   const location = useLocation()
+  const user = useAuthStore((state) => state.user)
 
   const navItems = [
     { path: '/dashboard', label: 'Panel', icon: '📊' },
@@ -57,15 +55,6 @@ const DashboardLayout = ({
 
         {/* Footer */}
         <div className='p-6 border-t border-gray-200'>
-          <div className='bg-gradient-to-br from-blue-50 to-purple-50 p-4 rounded-xl mb-4 border border-blue-200'>
-            <p className='text-xs font-semibold text-gray-700 mb-1'>
-              Plan Free
-            </p>
-            <p className='text-xs text-gray-600 mb-3'>Hasta 3 canales</p>
-            <Button className='w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white text-sm py-2 shadow-md'>
-              ✨ Upgrade Now
-            </Button>
-          </div>
           <Button
             className='w-full bg-red-500 hover:bg-red-600 text-white py-3 shadow-md'
             onClick={onLogout}>
@@ -88,22 +77,26 @@ const DashboardLayout = ({
               </p>
             </div>
             <div className='flex items-center gap-4'>
-              <div className='flex items-center gap-3 bg-gray-50 px-4 py-2 rounded-xl border border-gray-200'>
-                <div className='w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full flex items-center justify-center'>
-                  <span className='text-white font-semibold text-sm'>
-                    {user.name
-                      .split(' ')
-                      .map((n) => n[0])
-                      .join('')}
-                  </span>
+              {user && (
+                <div className='flex items-center gap-3 bg-gray-50 px-4 py-2 rounded-xl border border-gray-200'>
+                  <div className='w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full flex items-center justify-center'>
+                    <span className='text-white font-semibold text-sm'>
+                      {user.name
+                        ?.split(' ')
+                        .map((n) => n[0])
+                        .join('') ||
+                        user.email?.[0]?.toUpperCase() ||
+                        'U'}
+                    </span>
+                  </div>
+                  <div>
+                    <p className='font-semibold text-gray-900 text-sm'>
+                      {user.name || 'Usuario'}
+                    </p>
+                    <p className='text-xs text-gray-500'>{user.email}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className='font-semibold text-gray-900 text-sm'>
-                    {user.name}
-                  </p>
-                  <p className='text-xs text-gray-500'>{user.email}</p>
-                </div>
-              </div>
+              )}
             </div>
           </div>
         </header>
